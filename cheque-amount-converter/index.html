@@ -68,37 +68,18 @@
                 if (int === 0) return '零';
                 if (int < 10) return digits[int];
                 
-                let result = '';
-                let unitIndex = 0;
-                let hasZero = false;
+                return Array.from({ length: 4 }, (_, i) => 10000 ** i)
+                    .reduce((result, divisor, index) => {
+                        const quotient = Math.floor(int / divisor) % 10000;
+                        if (quotient === 0) return result;
 
-                while (int > 0) {
-                    const section = int % 10000;
-                    let sectionStr = '';
+                        const section = Array.from({ length: 4 }, (_, i) => {
+                            const digit = Math.floor(quotient / 10 ** i) % 10;
+                            return digit ? digits[digit] + positions[i] : '';
+                        }).reverse().join('').replace(/(零+)/g, '零').replace(/零$/, '');
 
-                    for (let i = 0; i < 4; i++) {
-                        const digit = Math.floor(section / Math.pow(10, i)) % 10;
-                        if (digit !== 0) {
-                            if (hasZero) {
-                                sectionStr = '零' + sectionStr;
-                                hasZero = false;
-                            }
-                            sectionStr = digits[digit] + positions[i] + sectionStr;
-                        } else if (sectionStr !== '') {
-                            hasZero = true;
-                        }
-                    }
-
-                    if (sectionStr !== '') {
-                        result = sectionStr + (unitIndex > 0 ? units[unitIndex] : '') + result;
-                        hasZero = false;
-                    }
-
-                    int = Math.floor(int / 10000);
-                    unitIndex++;
-                }
-
-                return result;
+                        return `${section}${units[index]}${result}`;
+                    }, '');
             };
 
             const integerPart = integer > 0 ? `${processInteger(integer)}元` : '';
@@ -118,14 +99,16 @@
                 if (n === 0) return '';
                 if (n < 10) return ones[n];
                 if (n < 20) return teens[n - 10];
-                if (n < 100) {
-                    const ten = Math.floor(n / 10);
-                    const one = n % 10;
-                    return `${tens[ten]}${one ? '-' + ones[one] : ''}`;
-                }
-                const hundred = Math.floor(n / 100);
-                const remainder = n % 100;
-                return `${ones[hundred]} Hundred${remainder ? ' ' + convertLessThanOneThousand(remainder) : ''}`;
+                if (n < 100) return `${tens[Math.floor(n / 10)]}${n % 10 ? '-' + ones[n % 10] : ''}`;
+                return `${ones[Math.floor(n / 100)]} Hundred${n % 100 ? ' ' + convertLessThanOneThousand(n % 100) : ''}`;
+            };
+
+            const convertCents = (cents) => {
+                if (cents === 0) return '';
+                if (cents === 1) return 'One Cent';
+                if (cents < 10) return `${ones[cents]} Cents`;
+                if (cents < 20) return `${teens[cents - 10]} Cents`;
+                return `${tens[Math.floor(cents / 10)]}${cents % 10 ? '-' + ones[cents % 10] : ''} Cents`;
             };
 
             return (num) => {
@@ -145,34 +128,20 @@
                     ];
 
                     return sections
-                        .filter(section => section.value > 0)
-                        .map(section => `${convertLessThanOneThousand(section.value)} ${section.name}`)
+                        .filter(({ value }) => value > 0)
+                        .map(({ value, name }) => `${convertLessThanOneThousand(value)} ${name}`)
                         .join(' ');
                 };
 
-                const integerPart = integer > 0 ? `${processInteger(integer)} Dollar${integer === 1 ? '' : 's'}` : '';
-                const decimalPart = decimal > 0
-                    ? `${decimal < 10 ? `${ones[decimal]} Cent${decimal === 1 ? '' : 's'}` :
-                        decimal < 20 ? `${teens[decimal - 10]} Cents` :
-                        `${tens[Math.floor(decimal / 10)]}${decimal % 10 ? '-' + ones[decimal % 10] : ''} Cents`}`
-                    : '';
+                const integerPart = integer > 0 ? `${processInteger(integer)} Dollar${integer !== 1 ? 's' : ''}` : '';
+                const centsPart = convertCents(decimal);
 
-                if (integerPart && decimalPart) {
-                    return `${integerPart} and ${decimalPart}`;
-                } else if (integerPart) {
-                    return integerPart;
-                } else if (decimalPart) {
-                    return `Zero Dollar and ${decimalPart}`;
-                } else {
-                    return 'Zero Dollar';
-                }
+                return [integerPart, centsPart].filter(Boolean).join(' and ') || 'Zero Dollar';
             };
         })();
 
-        document.getElementById('amount').addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                convertAmount();
-            }
+        document.getElementById('amount').addEventListener('keypress', ({ key }) => {
+            if (key === 'Enter') convertAmount();
         });
     </script>
 </body>
