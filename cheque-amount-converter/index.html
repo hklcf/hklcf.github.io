@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支票金額轉換器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 5px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>支票金額轉換器</h2>
+        <input type="number" id="amount" placeholder="輸入金額" step="0.01">
+        <button onclick="convertAmount()">轉換</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const convertAmount = () => {
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (isNaN(amount) || amount < 0 || amount > 999999999999.99) {
+                alert('請輸入有效的金額（0-999,999,999,999.99）');
+                return;
+            }
+
+            const chineseResult = numberToChineseWords(amount);
+            const englishResult = numberToEnglishWords(amount);
+
+            document.getElementById('result').innerHTML = `
+                <p>中文大寫：${chineseResult}</p>
+                <p>英文大寫：${englishResult}</p>
+            `;
+        };
+
+        const numberToChineseWords = (num) => {
+            const units = ['', '萬', '億', '兆'];
+            const digits = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
+            const positions = ['', '拾', '佰', '仟'];
+
+            let integer = Math.floor(num);
+            const decimal = Math.round((num - integer) * 100);
+
+            let result = '';
+
+            if (integer === 0 && decimal === 0) {
+                return '零元整';
+            }
+
+            if (integer > 0) {
+                let unitIndex = 0;
+                let hasZero = false;
+
+                while (integer > 0) {
+                    let section = integer % 10000;
+                    let sectionStr = '';
+
+                    for (let i = 0; i < 4; i++) {
+                        const digit = section % 10;
+                        if (digit !== 0) {
+                            if (hasZero) {
+                                sectionStr = '零' + sectionStr;
+                                hasZero = false;
+                            }
+                            sectionStr = digits[digit] + positions[i] + sectionStr;
+                        } else if (i > 0 && section > 0) {
+                            hasZero = true;
+                        }
+                        section = Math.floor(section / 10);
+                    }
+
+                    if (sectionStr !== '') {
+                        result = sectionStr + units[unitIndex] + result;
+                        hasZero = false;
+                    } else if (unitIndex > 0) {
+                        hasZero = true;
+                    }
+
+                    integer = Math.floor(integer / 10000);
+                    unitIndex++;
+                }
+
+                result += '元';
+            }
+
+            if (decimal > 0) {
+                if (result === '') {
+                    result = '零元';
+                }
+                const [jiao, fen] = [Math.floor(decimal / 10), decimal % 10];
+                if (jiao > 0) result += digits[jiao] + '角';
+                if (fen > 0) result += digits[fen] + '分';
+            } else {
+                result += '整';
+            }
+
+            return result;
+        };
+
+        const numberToEnglishWords = (num) => {
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+            const convertLessThanOneThousand = (n) => {
+                if (n === 0) return '';
+                if (n < 10) return ones[n];
+                if (n < 20) return teens[n - 10];
+                if (n < 100) return `${tens[Math.floor(n / 10)]}${n % 10 !== 0 ? '-' + ones[n % 10] : ''}`;
+                return `${ones[Math.floor(n / 100)]} Hundred${n % 100 !== 0 ? ' ' + convertLessThanOneThousand(n % 100) : ''}`;
+            };
+
+            let result = '';
+            const integer = Math.floor(num);
+            const decimal = Math.round((num - integer) * 100);
+
+            if (integer === 0 && decimal === 0) return 'Zero Dollars';
+
+            if (integer > 0) {
+                const [billions, millions, thousands, remainder] = [
+                    Math.floor(integer / 1000000000),
+                    Math.floor((integer % 1000000000) / 1000000),
+                    Math.floor((integer % 1000000) / 1000),
+                    integer % 1000
+                ];
+
+                if (billions > 0) result += `${convertLessThanOneThousand(billions)} Billion `;
+                if (millions > 0) result += `${convertLessThanOneThousand(millions)} Million `;
+                if (thousands > 0) result += `${convertLessThanOneThousand(thousands)} Thousand `;
+                if (remainder > 0) result += convertLessThanOneThousand(remainder);
+
+                result += ` Dollar${integer === 1 ? '' : 's'}`;
+            }
+
+            if (decimal > 0) {
+                if (integer === 0) {
+                    result = 'Zero Dollars and ';
+                } else {
+                    result += ' and ';
+                }
+                if (decimal < 10) {
+                    result += `${ones[decimal]} Cent${decimal === 1 ? '' : 's'}`;
+                } else if (decimal < 20) {
+                    result += `${teens[decimal - 10]} Cents`;
+                } else {
+                    result += `${tens[Math.floor(decimal / 10)]}${decimal % 10 > 0 ? '-' + ones[decimal % 10] : ''} Cents`;
+                }
+            }
+
+            return result;
+        };
+    </script>
+</body>
+</html>
