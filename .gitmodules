@@ -1,0 +1,3 @@
+[submodule "cheque-amount-converter"]
+	path = cheque-amount-converter
+	url = https://github.com/hklcf/Cheque-Amount-Converter.git
