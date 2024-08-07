@@ -1,3 +1,6 @@
 [submodule "cheque-amount-converter"]
 	path = cheque-amount-converter
 	url = https://github.com/hklcf/Cheque-Amount-Converter.git
+[submodule "text-to-speech-converter"]
+	path = text-to-speech-converter
+	url = https://github.com/hklcf/Text-to-Speech-Converter.git
