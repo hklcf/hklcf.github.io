@@ -4,3 +4,6 @@
 [submodule "text-to-speech-converter"]
 	path = text-to-speech-converter
 	url = https://github.com/hklcf/Text-to-Speech-Converter.git
+[submodule "full-spectrum-audio-test-generator"]
+	path = full-spectrum-audio-test-generator
+	url = https://github.com/hklcf/Full-Spectrum-Audio-Test-Generator.git
