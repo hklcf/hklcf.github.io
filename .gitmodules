@@ -7,3 +7,6 @@
 [submodule "full-spectrum-audio-test-generator"]
 	path = full-spectrum-audio-test-generator
 	url = https://github.com/hklcf/Full-Spectrum-Audio-Test-Generator.git
+[submodule "json-parser"]
+	path = json-parser
+	url = https://github.com/hklcf/JSON-Parser.git
