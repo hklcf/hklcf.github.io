@@ -1,0 +1,209 @@
+:root {
+    --board-size: 300px;
+    --cell-size: calc(var(--board-size) / 3);
+    --primary-color: #0d1b2a;
+    --secondary-color: #1b263b;
+    --accent-color: #415a77;
+    --text-color: #e0e1dd;
+    --x-color: #e63946;
+    --o-color: #457b9d;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.game-info {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    min-height: 2rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, var(--cell-size));
+    grid-template-rows: repeat(3, var(--cell-size));
+    gap: 5px;
+    background-color: var(--accent-color);
+    border: 5px solid var(--accent-color);
+    width: var(--board-size);
+    height: var(--board-size);
+    margin: 0 auto;
+}
+
+.cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background-color: var(--secondary-color);
+    border: none;
+    font-size: 3rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.cell:hover {
+    background-color: var(--accent-color);
+}
+
+.cell.x {
+    color: var(--x-color);
+}
+
+.cell.o {
+    color: var(--o-color);
+}
+
+.cell.win {
+    background-color: #ffd700;
+    color: var(--primary-color);
+}
+
+.reset-button {
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.reset-button:hover {
+    background-color: #5a7b9d;
+}
+
+.reset-button:active {
+    transform: scale(0.98);
+}
+
+/* 新增樣式 */
+.hidden {
+    display: none !important;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid var(--accent-color);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content button {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+    font-size: 1rem;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #5a7b9d;
+}
+
+.p2p-menu {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--accent-color);
+    padding-top: 1.5rem;
+}
+
+.p2p-menu input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--accent-color);
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.p2p-status {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    min-height: 1.2rem;
+}
+
+.board.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}```
+
+---
+
+### **3. `js/config.js`**
+
+```javascript
+/**
+ * @fileoverview 遊戲的外部設定。
+ * 將設定值集中管理，便於未來修改和擴展，符合高可配置性原則。
+ */
+
+export const config = {
+    playerSymbols: {
+        P1: 'X',
+        P2: 'O',
+    },
+    winningCombinations: [
+        // Rows
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        // Columns
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        // Diagonals
+        [0, 4, 8],
+        [2, 4, 6],
+    ],
+    // 定義通訊協定類型，使網路訊息的意圖清晰明瞭
+    messageTypes: {
+        MOVE: 'MOVE',
+        RESET: 'RESET',
+    },
+};
